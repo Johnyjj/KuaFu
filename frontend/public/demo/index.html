@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KuaFu - 团队任务追踪系统</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-bolt"></i>
+                    <span class="logo-text">KuaFu</span>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="nav-item active" data-page="dashboard">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>仪表板</span>
+                    </li>
+                    <li class="nav-item" data-page="my-tasks">
+                        <i class="fas fa-tasks"></i>
+                        <span>我的任务</span>
+                    </li>
+                    <li class="nav-item" data-page="teams">
+                        <i class="fas fa-users"></i>
+                        <span>团队概览</span>
+                    </li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-details">
+                        <div class="user-name">张三</div>
+                        <div class="user-role">前端组 - 组长</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <!-- 顶部栏 -->
+            <header class="top-bar">
+                <div class="page-title">
+                    <h1 id="current-page-title">仪表板</h1>
+                    <div class="connection-status online">
+                        <i class="fas fa-circle"></i>
+                        <span>实时同步中</span>
+                    </div>
+                </div>
+                <div class="top-bar-actions">
+                    <button class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        <span>新建任务</span>
+                    </button>
+                    <div class="notifications">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge">3</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 页面内容 -->
+            <div class="page-content">
+                <!-- 仪表板页面 (合并数据统计) -->
+                <div class="page dashboard-page active" id="dashboard">
+                    <!-- 统计卡片 - 一排展示 -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon primary">
+                                <i class="fas fa-list-check"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-value">68</div>
+                                <div class="stat-label">总任务</div>
+                            </div>
+                            <div class="stat-trend up">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>12%</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon success">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-value">36</div>
+                                <div class="stat-label">已完成</div>
+                            </div>
+                            <div class="stat-trend up">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>8%</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon info">
+                                <i class="fas fa-spinner"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-value">28</div>
+                                <div class="stat-label">进行中</div>
+                            </div>
+                            <div class="stat-trend neutral">
+                                <i class="fas fa-minus"></i>
+                                <span>0%</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon warning">
+                                <i class="fas fa-percentage"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-value">92%</div>
+                                <div class="stat-label">闭环率</div>
+                            </div>
+                            <div class="stat-trend up">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>3%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 团队概览 - 每个团队有自己的小图表 -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>团队概览</h3>
+                        </div>
+                        <div class="teams-detailed-grid">
+                            <div class="team-detailed-card">
+                                <div class="team-info-section">
+                                    <div class="team-header">
+                                        <div class="team-icon bg-blue">
+                                            <i class="fas fa-code"></i>
+                                        </div>
+                                        <div class="team-info">
+                                            <h4>前端组</h4>
+                                            <span class="member-count">8人</span>
+                                        </div>
+                                    </div>
+                                    <div class="team-stats">
+                                        <div class="stat-item">
+                                            <span class="label">任务数</span>
+                                            <span class="value">23</span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span class="label">完成</span>
+                                            <span class="value success">12</span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span class="label">进度</span>
+                                            <span class="value">52%</span>
+                                        </div>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 52%"></div>
+                                    </div>
+                                </div>
+                                <div class="team-chart-section">
+                                    <canvas id="frontendChart" width="120" height="120"></canvas>
+                                </div>
+                            </div>
+
+                            <div class="team-detailed-card">
+                                <div class="team-info-section">
+                                    <div class="team-header">
+                                        <div class="team-icon bg-purple">
+                                            <i class="fas fa-server"></i>
+                                        </div>
+                                        <div class="team-info">
+                                            <h4>后端组</h4>
+                                            <span class="member-count">6人</span>
+                                        </div>
+                                    </div>
+                                    <div class="team-stats">
+                                        <div class="stat-item">
+                                            <span class="label">任务数</span>
+                                            <span class="value">18</span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span class="label">完成</span>
+                                            <span class="value success">8</span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span class="label">进度</span>
+                                            <span class="value">44%</span>
+                                        </div>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 44%"></div>
+                                    </div>
+                                </div>
+                                <div class="team-chart-section">
+                                    <canvas id="backendChart" width="120" height="120"></canvas>
+                                </div>
+                            </div>
+
+                            <div class="team-detailed-card">
+                                <div class="team-info-section">
+                                    <div class="team-header">
+                                        <div class="team-icon bg-green">
+                                            <i class="fas fa-vial"></i>
+                                        </div>
+                                        <div class="team-info">
+                                            <h4>测试组</h4>
+                                            <span class="member-count">5人</span>
+                                        </div>
+                                    </div>
+                                    <div class="team-stats">
+                                        <div class="stat-item">
+                                            <span class="label">任务数</span>
+                                            <span class="value">15</span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span class="label">完成</span>
+                                            <span class="value success">9</span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span class="label">进度</span>
+                                            <span class="value">60%</span>
+                                        </div>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 60%"></div>
+                                    </div>
+                                </div>
+                                <div class="team-chart-section">
+                                    <canvas id="testChart" width="120" height="120"></canvas>
+                                </div>
+                            </div>
+
+                            <div class="team-detailed-card">
+                                <div class="team-info-section">
+                                    <div class="team-header">
+                                        <div class="team-icon bg-orange">
+                                            <i class="fas fa-cloud"></i>
+                                        </div>
+                                        <div class="team-info">
+                                            <h4>运维组</h4>
+                                            <span class="member-count">4人</span>
+                                        </div>
+                                    </div>
+                                    <div class="team-stats">
+                                        <div class="stat-item">
+                                            <span class="label">任务数</span>
+                                            <span class="value">12</span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span class="label">完成</span>
+                                            <span class="value success">7</span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span class="label">进度</span>
+                                            <span class="value">58%</span>
+                                        </div>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 58%"></div>
+                                    </div>
+                                </div>
+                                <div class="team-chart-section">
+                                    <canvas id="opsChart" width="120" height="120"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 整体数据趋势 -->
+                    <div class="charts-grid">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>闭环率趋势</h3>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="trendChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>各组任务对比</h3>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="groupChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>任务完成时间分析</h3>
+                            </div>
+                            <div class="time-stats">
+                                <div class="time-stat">
+                                    <div class="stat-value">3.5天</div>
+                                    <div class="stat-label">平均完成时间</div>
+                                </div>
+                                <div class="time-stat">
+                                    <div class="stat-value">0.5天</div>
+                                    <div class="stat-label">最快完成</div>
+                                </div>
+                                <div class="time-stat">
+                                    <div class="stat-value">15天</div>
+                                    <div class="stat-label">最慢完成</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 我的任务页面 -->
+                <div class="page my-tasks-page" id="my-tasks">
+                    <div class="task-filters">
+                        <button class="filter-btn active">全部</button>
+                        <button class="filter-btn">进行中</button>
+                        <button class="filter-btn">已完成</button>
+                        <button class="filter-btn">待办</button>
+                    </div>
+
+                    <!-- 日期选择器 -->
+                    <div class="date-selector">
+                        <button class="date-btn active" data-date="2025-12-16">今天 (12-16)</button>
+                        <button class="date-btn" data-date="2025-12-15">昨天 (12-15)</button>
+                        <button class="date-btn" data-date="2025-12-14">12-14</button>
+                        <button class="date-btn" data-date="2025-12-13">12-13</button>
+                        <button class="date-btn" data-date="all">全部</button>
+                    </div>
+
+                    <div class="tasks-container">
+                        <!-- 按日期分组显示任务 -->
+                        <div class="tasks-by-date" data-date="2025-12-16">
+                            <h4 class="date-group-title">今天 (12-16)</h4>
+                            <div class="task-card" data-date="2025-12-16">
+                                <div class="task-priority urgent"></div>
+                                <div class="task-content">
+                                    <h4>修复登录Bug</h4>
+                                    <p>前端模块 - 截止：2025-12-20</p>
+                                    <div class="task-progress">
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 80%"></div>
+                                        </div>
+                                        <span class="progress-text">80%</span>
+                                    </div>
+                                    <div class="progress-timeline">
+                                        <div class="timeline-item">
+                                            <div class="timeline-date">12-16</div>
+                                            <div class="timeline-content">
+                                                <div class="timeline-title">完成登录验证逻辑</div>
+                                                <div class="timeline-desc">修复了登录时的权限验证问题</div>
+                                            </div>
+                                        </div>
+                                        <div class="timeline-item">
+                                            <div class="timeline-date">12-15</div>
+                                            <div class="timeline-content">
+                                                <div class="timeline-title">完成UI界面优化</div>
+                                                <div class="timeline-desc">调整了登录页面的样式和交互</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="task-meta">
+                                        <span class="last-update">2小时前更新</span>
+                                        <span class="assignee">
+                                            <i class="fas fa-user"></i> 张三
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="task-actions">
+                                    <button class="btn-icon" title="编辑">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn-icon" title="完成">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="task-card" data-date="2025-12-16">
+                                <div class="task-priority high"></div>
+                                <div class="task-content">
+                                    <h4>优化API响应速度</h4>
+                                    <p>后端模块 - 截止：2025-12-22</p>
+                                    <div class="task-progress">
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 45%"></div>
+                                        </div>
+                                        <span class="progress-text">45%</span>
+                                    </div>
+                                    <div class="progress-timeline">
+                                        <div class="timeline-item">
+                                            <div class="timeline-date">12-16</div>
+                                            <div class="timeline-content">
+                                                <div class="timeline-title">完成数据库索引优化</div>
+                                                <div class="timeline-desc">为常用查询添加了索引</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="task-meta">
+                                        <span class="last-update">1天前更新</span>
+                                        <span class="assignee">
+                                            <i class="fas fa-user"></i> 李四
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="task-actions">
+                                    <button class="btn-icon" title="编辑">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+
+                        <!-- 昨天 (12-15) 的任务 -->
+                        <div class="tasks-by-date" data-date="2025-12-15">
+                            <h4 class="date-group-title">昨天 (12-15)</h4>
+                            <div class="task-card" data-date="2025-12-15">
+                                <div class="task-priority medium"></div>
+                                <div class="task-content">
+                                    <h4>编写用户手册</h4>
+                                    <p>文档模块 - 截止：2025-12-25</p>
+                                    <div class="task-progress">
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 100%"></div>
+                                        </div>
+                                        <span class="progress-text success">100%</span>
+                                    </div>
+                                    <div class="progress-timeline">
+                                        <div class="timeline-item">
+                                            <div class="timeline-date">12-15</div>
+                                            <div class="timeline-content">
+                                                <div class="timeline-title">完成最终审核</div>
+                                                <div class="timeline-desc">文档已通过审核并发布</div>
+                                            </div>
+                                        </div>
+                                        <div class="timeline-item">
+                                            <div class="timeline-date">12-12</div>
+                                            <div class="timeline-content">
+                                                <div class="timeline-title">完成初稿编写</div>
+                                                <div class="timeline-desc">完成了所有章节的编写</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="task-meta">
+                                        <span class="last-update">已完成</span>
+                                        <span class="assignee">
+                                            <i class="fas fa-user"></i> 王五
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="task-actions">
+                                    <button class="btn-icon" title="查看">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 团队概览页面 -->
+                <div class="page teams-page" id="teams">
+                    <div class="teams-header">
+                        <h2>全部团队</h2>
+                        <div class="view-toggle">
+                            <button class="toggle-btn active">
+                                <i class="fas fa-th-large"></i> 卡片
+                            </button>
+                            <button class="toggle-btn">
+                                <i class="fas fa-list"></i> 列表
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="teams-list">
+                        <div class="team-row">
+                            <div class="team-info-col">
+                                <div class="team-icon bg-blue">
+                                    <i class="fas fa-code"></i>
+                                </div>
+                                <div class="team-details">
+                                    <h3>前端组</h3>
+                                    <p>8名成员</p>
+                                </div>
+                            </div>
+                            <div class="team-stats-col">
+                                <div class="stat-item">
+                                    <span class="label">总任务</span>
+                                    <span class="value">23</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="label">完成</span>
+                                    <span class="value success">12</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="label">进行中</span>
+                                    <span class="value warning">9</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="label">待办</span>
+                                    <span class="value">2</span>
+                                </div>
+                            </div>
+                            <div class="team-progress-col">
+                                <div class="progress-bar large">
+                                    <div class="progress-fill" style="width: 52%"></div>
+                                </div>
+                                <span class="progress-label">52% 完成</span>
+                            </div>
+                            <div class="team-actions-col">
+                                <button class="btn btn-secondary">查看详情</button>
+                            </div>
+                        </div>
+
+                        <div class="team-row">
+                            <div class="team-info-col">
+                                <div class="team-icon bg-purple">
+                                    <i class="fas fa-server"></i>
+                                </div>
+                                <div class="team-details">
+                                    <h3>后端组</h3>
+                                    <p>6名成员</p>
+                                </div>
+                            </div>
+                            <div class="team-stats-col">
+                                <div class="stat-item">
+                                    <span class="label">总任务</span>
+                                    <span class="value">18</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="label">完成</span>
+                                    <span class="value success">8</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="label">进行中</span>
+                                    <span class="value warning">8</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="label">待办</span>
+                                    <span class="value">2</span>
+                                </div>
+                            </div>
+                            <div class="team-progress-col">
+                                <div class="progress-bar large">
+                                    <div class="progress-fill" style="width: 44%"></div>
+                                </div>
+                                <span class="progress-label">44% 完成</span>
+                            </div>
+                            <div class="team-actions-col">
+                                <button class="btn btn-secondary">查看详情</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 实时通知 -->
+    <div class="notification-panel" id="notificationPanel">
+        <div class="notification-item">
+            <i class="fas fa-info-circle"></i>
+            <div class="notification-content">
+                <div class="notification-title">任务更新</div>
+                <div class="notification-message">李四更新了"修复登录Bug"的进展</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
