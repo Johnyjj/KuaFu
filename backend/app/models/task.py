@@ -21,13 +21,13 @@ class Task(Base):
     __tablename__ = "tasks"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    project_id = Column(UUID(as_uuid=True), ForeignKey("projects.id"), nullable=False)
+    project_id = Column(UUID(as_uuid=True), ForeignKey("projects.id"), nullable=False, index=True)
     title = Column(String(300), nullable=False)
     description = Column(Text, nullable=True)
-    assignee_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
+    assignee_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True, index=True)
     status = Column(Enum(TaskStatus), nullable=False, default=TaskStatus.todo)
     priority = Column(Enum(TaskPriority), nullable=False, default=TaskPriority.medium)
-    progress = Column(Integer, default=0)
+    progress = Column(Integer, nullable=False, default=0)
     due_date = Column(Date, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
@@ -40,11 +40,11 @@ class TaskLog(Base):
     __tablename__ = "task_logs"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    task_id = Column(UUID(as_uuid=True), ForeignKey("tasks.id"), nullable=False)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    task_id = Column(UUID(as_uuid=True), ForeignKey("tasks.id"), nullable=False, index=True)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True)
     content = Column(Text, nullable=False)
     progress = Column(Integer, nullable=False)
-    status = Column(String(50), nullable=False)
+    status = Column(Enum(TaskStatus), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     task = relationship("Task", back_populates="logs")
