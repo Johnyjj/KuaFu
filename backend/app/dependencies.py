@@ -15,9 +15,13 @@ def get_current_user(
     try:
         payload = jwt.decode(credentials.credentials, settings.secret_key, algorithms=["HS256"])
         user_id: str = payload.get("sub")
-    except JWTError:
+        if not user_id:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+        from uuid import UUID
+        user_uuid = UUID(user_id)
+    except (JWTError, ValueError):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
-    user = db.query(User).filter(User.id == user_id).first()
+    user = db.query(User).filter(User.id == user_uuid).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
     return user
