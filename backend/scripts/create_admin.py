@@ -8,6 +8,7 @@ import argparse
 sys.path.insert(0, ".")
 from app.database import SessionLocal
 from app.models.user import User, UserRole
+from app.models import project, task  # noqa: F401 - ensure all models are loaded
 from app.services.auth_service import hash_password
 
 
