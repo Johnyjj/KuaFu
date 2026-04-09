@@ -30,18 +30,27 @@
 
 ### 色彩
 ```css
---color-primary: #2563EB
---color-on-primary: #FFFFFF
---color-secondary: #3B82F6
---color-accent: #059669
---color-background: #F8FAFC
---color-foreground: #0F172A
---color-muted: #F1F5FD
---color-border: #E4ECFC
---color-destructive: #DC2626
---color-ring: #2563EB
-/* 侧边栏背景 */
---color-sidebar: #0F172A
+/* 中性色主体，色彩只用于语义（状态标签） */
+--color-bg-sidebar: #f7f7f5      /* 侧边栏：温暖浅灰 */
+--color-bg-content: #ffffff      /* 内容区：纯白 */
+--color-bg-page: #fafafa         /* 页面底：极浅灰 */
+--color-bg-hover: #e8e8e6        /* hover/选中背景 */
+--color-border: #e8e8e6          /* 边框 */
+
+--color-text-primary: #191919    /* 主文字：近黑 */
+--color-text-secondary: #555555  /* 副文字 */
+--color-text-muted: #8c8c8c      /* 占位/辅助 */
+--color-text-disabled: #aaaaaa   /* 禁用 */
+
+--color-interactive: #191919     /* 按钮、链接、进度条 */
+--color-ring: #191919            /* 焦点环 */
+
+/* 语义色（仅用于状态标签，不用于布局/装饰） */
+--color-status-done: #16a34a     /* 已完成 */
+--color-status-progress: #2563eb /* 进行中 */
+--color-status-blocked: #dc2626  /* 阻塞 */
+--color-status-todo: #92400e     /* 待办（暖棕）*/
+--color-destructive: #dc2626     /* 删除/危险 */
 ```
 
 ### 字体
