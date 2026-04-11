@@ -26,10 +26,12 @@ def create(project_id: UUID, body: ModuleCreate, db: Session = Depends(get_db), 
 @router.patch("/modules/{module_id}", response_model=ModuleOut)
 def update(module_id: UUID, body: ModuleUpdate, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     module = get_module_or_404(db, module_id)
+    get_project_or_403(db, module.project_id, user)
     return update_module(db, module, body, user)
 
 
 @router.delete("/modules/{module_id}", status_code=204)
 def delete(module_id: UUID, db: Session = Depends(get_db), user: User = Depends(require_admin)):
     module = get_module_or_404(db, module_id)
+    get_project_or_403(db, module.project_id, user)
     delete_module(db, module)

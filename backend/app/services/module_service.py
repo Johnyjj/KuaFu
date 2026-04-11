@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from uuid import UUID
 from app.models.module import Module
+from app.models.task import Task
 from app.models.user import User, UserRole
 from app.schemas.module import ModuleCreate, ModuleUpdate
 
@@ -31,7 +32,7 @@ def create_module(db: Session, project_id: UUID, data: ModuleCreate) -> Module:
 
 
 def update_module(db: Session, module: Module, data: ModuleUpdate, user: User) -> Module:
-    if user.role != UserRole.admin and module.owner_id != user.id:
+    if user.role != UserRole.admin and (module.owner_id is None or module.owner_id != user.id):
         raise HTTPException(status_code=403, detail="Not authorized to edit this module")
     for k, v in data.model_dump(exclude_none=True).items():
         setattr(module, k, v)
@@ -41,7 +42,6 @@ def update_module(db: Session, module: Module, data: ModuleUpdate, user: User) -
 
 
 def delete_module(db: Session, module: Module) -> None:
-    from app.models.task import Task
     db.query(Task).filter(Task.module_id == module.id).update({"module_id": None})
     db.delete(module)
     db.commit()
