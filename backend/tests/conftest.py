@@ -8,7 +8,8 @@ from app.models.user import User, UserRole
 from app.models import project, task  # noqa: F401 - register all models with SQLAlchemy
 from app.services.auth_service import hash_password
 
-TEST_DATABASE_URL = "postgresql://kuafu:kuafu_pass@localhost:5432/kuafu_test"
+import os
+TEST_DATABASE_URL = os.getenv("TEST_DATABASE_URL", "postgresql://kuafu:kuafu_pass@db:5432/kuafu_test")
 
 engine = create_engine(TEST_DATABASE_URL)
 TestingSessionLocal = sessionmaker(bind=engine)
