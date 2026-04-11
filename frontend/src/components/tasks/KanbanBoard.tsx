@@ -14,7 +14,7 @@ import { TaskCard } from './TaskCard'
 import { tasksApi } from '@/api/tasks'
 import type { Task, TaskStatus } from '@/api/types'
 
-const STATUSES: TaskStatus[] = ['todo', 'in_progress', 'done', 'blocked']
+const STATUSES: TaskStatus[] = ['todo', 'in_progress', 'blocked', 'done']
 
 interface KanbanBoardProps {
   tasks: Task[]
@@ -78,7 +78,7 @@ export function KanbanBoard({ tasks, projectId }: KanbanBoardProps) {
           <KanbanColumn key={status} status={status} tasks={grouped[status]} />
         ))}
       </div>
-      <DragOverlay>
+      <DragOverlay dropAnimation={null}>
         {activeTask ? <TaskCard task={activeTask} /> : null}
       </DragOverlay>
     </DndContext>

@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import StreamingResponse
 from io import BytesIO
+from urllib.parse import quote
 from sqlalchemy.orm import Session
 from uuid import UUID
 from app.database import get_db
@@ -72,5 +73,5 @@ def export(project_id: UUID, db: Session = Depends(get_db), user: User = Depends
     return StreamingResponse(
         BytesIO(content),
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        headers={"Content-Disposition": f"attachment; filename={project.name}-report.xlsx"}
+        headers={"Content-Disposition": f"attachment; filename*=UTF-8''{quote(project.name)}-report.xlsx"}
     )

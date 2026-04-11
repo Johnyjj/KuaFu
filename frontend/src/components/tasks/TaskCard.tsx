@@ -19,7 +19,7 @@ export function TaskCard({ task }: TaskCardProps) {
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.5 : 1,
+    opacity: isDragging ? 0 : 1,
   }
 
   const isOverdue = task.due_date ? new Date(task.due_date) < new Date() && task.status !== 'done' : false

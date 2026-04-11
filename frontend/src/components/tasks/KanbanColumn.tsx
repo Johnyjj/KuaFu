@@ -1,3 +1,4 @@
+import { useDroppable } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { TaskCard } from './TaskCard'
 import type { Task, TaskStatus } from '@/api/types'
@@ -10,12 +11,13 @@ interface KanbanColumnProps {
 const statusConfig: Record<TaskStatus, { label: string; dotColor: string }> = {
   todo:        { label: '待办',   dotColor: '#92400e' },
   in_progress: { label: '进行中', dotColor: '#2563eb' },
-  done:        { label: '已完成', dotColor: '#16a34a' },
   blocked:     { label: '阻塞',   dotColor: '#dc2626' },
+  done:        { label: '已完成', dotColor: '#16a34a' },
 }
 
 export function KanbanColumn({ status, tasks }: KanbanColumnProps) {
   const cfg = statusConfig[status]
+  const { setNodeRef, isOver } = useDroppable({ id: status })
 
   return (
     <div className="min-w-[240px] flex-1 bg-[#f7f7f5] rounded-lg p-3 flex flex-col">
@@ -31,7 +33,10 @@ export function KanbanColumn({ status, tasks }: KanbanColumnProps) {
       </div>
 
       <SortableContext items={tasks.map((t) => t.id)} strategy={verticalListSortingStrategy}>
-        <div className="flex flex-col gap-2 flex-1">
+        <div
+          ref={setNodeRef}
+          className={`flex flex-col gap-2 flex-1 min-h-[80px] rounded-md transition-colors ${isOver ? 'bg-blue-50' : ''}`}
+        >
           {tasks.length === 0 ? (
             <div className="flex items-center justify-center py-8 text-sm text-[#aaa]">
               暂无任务

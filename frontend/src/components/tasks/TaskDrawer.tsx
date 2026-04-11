@@ -19,8 +19,8 @@ interface TaskDrawerProps {
 const STATUS_OPTIONS: { value: TaskStatus; label: string }[] = [
   { value: 'todo', label: '待办' },
   { value: 'in_progress', label: '进行中' },
-  { value: 'done', label: '已完成' },
   { value: 'blocked', label: '阻塞' },
+  { value: 'done', label: '已完成' },
 ]
 
 export function TaskDrawer({ taskId, projectId, tasks }: TaskDrawerProps) {
@@ -39,6 +39,13 @@ export function TaskDrawer({ taskId, projectId, tasks }: TaskDrawerProps) {
       setStatus(task.status)
     }
   }, [task])
+
+  // 状态切换为「已完成」时，进度自动设为 100%
+  React.useEffect(() => {
+    if (status === 'done') {
+      setProgress(100)
+    }
+  }, [status])
 
   const { data: logs, isLoading: logsLoading } = useQuery({
     queryKey: ['logs', taskId],
@@ -60,7 +67,7 @@ export function TaskDrawer({ taskId, projectId, tasks }: TaskDrawerProps) {
     },
   })
 
-  function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     if (!logContent.trim()) return
     addLogMutation.mutate()

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { BarChart2, Users, Plus, Loader2 } from 'lucide-react'
+import { BarChart2, Users, Plus, Loader2, Download } from 'lucide-react'
 import { toast } from 'sonner'
 import { tasksApi } from '@/api/tasks'
 import { projectsApi } from '@/api/projects'
@@ -145,6 +145,22 @@ export default function TasksPage() {
   const setActiveTab = useUIStore((s) => s.setActiveTab)
   const drawerTaskId = useUIStore((s) => s.drawerTaskId)
 
+  async function handleExport() {
+    try {
+      const response = await projectsApi.export(projectId)
+      const blob = response.data as Blob
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'project-report.xlsx'
+      a.click()
+      URL.revokeObjectURL(url)
+      toast.success('导出成功')
+    } catch {
+      toast.error('导出失败')
+    }
+  }
+
   const { data: tasksData, isLoading: tasksLoading } = useQuery({
     queryKey: ['tasks', projectId],
     queryFn: () => tasksApi.list(projectId).then((r) => r.data),
@@ -184,6 +200,13 @@ export default function TasksPage() {
             {isAdmin && <CreateTaskDialog projectId={projectId} />}
             {isAdmin && (
               <>
+                <button
+                  onClick={handleExport}
+                  className="flex items-center gap-1.5 text-sm text-[#555] hover:text-[#191919] border border-[#e8e8e6] rounded-md px-3 py-1.5 bg-white hover:bg-[#f7f7f5] transition-colors"
+                >
+                  <Download size={14} />
+                  导出
+                </button>
                 <Link
                   to={`/projects/${projectId}/stats`}
                   className="flex items-center gap-1.5 text-sm text-[#555] hover:text-[#191919] border border-[#e8e8e6] rounded-md px-3 py-1.5 bg-white hover:bg-[#f7f7f5] transition-colors"
