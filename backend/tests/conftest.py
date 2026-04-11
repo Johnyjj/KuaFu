@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from app.main import app
 from app.database import Base, get_db
 from app.models.user import User, UserRole
-from app.models import project, task  # noqa: F401 - register all models with SQLAlchemy
+from app.models import project, task, module  # noqa: F401 - register all models with SQLAlchemy
 from app.services.auth_service import hash_password
 
 import os
