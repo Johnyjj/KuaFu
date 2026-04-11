@@ -22,6 +22,7 @@ class Task(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     project_id = Column(UUID(as_uuid=True), ForeignKey("projects.id"), nullable=False, index=True)
+    module_id = Column(UUID(as_uuid=True), ForeignKey("modules.id"), nullable=True, index=True)
     title = Column(String(300), nullable=False)
     description = Column(Text, nullable=True)
     assignee_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True, index=True)
@@ -35,6 +36,7 @@ class Task(Base):
     project = relationship("Project", back_populates="tasks")
     assignee = relationship("User", back_populates="assigned_tasks")
     logs = relationship("TaskLog", back_populates="task", cascade="all, delete-orphan")
+    module = relationship("Module", back_populates="tasks")
 
 class TaskLog(Base):
     __tablename__ = "task_logs"
