@@ -1,5 +1,5 @@
 import { client } from './client'
-import type { Task, TaskLog } from '@/types'
+import type { Task, TaskLog } from './types'
 
 export const tasksApi = {
   list: (projectId: string) =>
