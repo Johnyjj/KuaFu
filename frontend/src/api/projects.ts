@@ -1,5 +1,5 @@
 import { client } from './client'
-import type { Project, User, ProjectStats } from '@/types'
+import type { Project, User, ProjectStats } from './types'
 
 export const projectsApi = {
   list: () => client.get<Project[]>('/projects'),
