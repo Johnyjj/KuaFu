@@ -10,6 +10,7 @@ class TaskCreate(BaseModel):
     title: str
     description: Optional[str] = None
     assignee_id: Optional[UUID] = None
+    module_id: Optional[UUID] = None
     priority: TaskPriority = TaskPriority.medium
     due_date: Optional[date] = None
 
@@ -18,6 +19,7 @@ class TaskUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
     assignee_id: Optional[UUID] = None
+    module_id: Optional[UUID] = None
     status: Optional[TaskStatus] = None
     priority: Optional[TaskPriority] = None
     progress: Optional[int] = Field(None, ge=0, le=100)
@@ -36,6 +38,12 @@ class AssigneeOut(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class ModuleRef(BaseModel):
+    id: UUID
+    name: str
+    model_config = {"from_attributes": True}
+
+
 class TaskLogOut(BaseModel):
     id: UUID
     content: str
@@ -49,6 +57,7 @@ class TaskLogOut(BaseModel):
 class TaskOut(BaseModel):
     id: UUID
     project_id: UUID
+    module_id: Optional[UUID]
     title: str
     description: Optional[str]
     status: TaskStatus
@@ -58,4 +67,5 @@ class TaskOut(BaseModel):
     created_at: datetime
     updated_at: datetime
     assignee: Optional[AssigneeOut]
+    module: Optional[ModuleRef]
     model_config = {"from_attributes": True}
