@@ -17,6 +17,7 @@ import {
 } from 'recharts'
 import { projectsApi } from '@/api/projects'
 import { tasksApi } from '@/api/tasks'
+import { modulesApi } from '@/api/modules'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
@@ -82,6 +83,11 @@ export function StatsPage() {
   const { data: tasks } = useQuery({
     queryKey: ['tasks', projectId],
     queryFn: () => tasksApi.list(projectId).then(r => r.data),
+  })
+
+  const { data: modules = [] } = useQuery({
+    queryKey: ['modules', projectId],
+    queryFn: () => modulesApi.list(projectId).then(r => r.data),
   })
 
   const handleExport = async () => {
@@ -157,6 +163,21 @@ export function StatsPage() {
 
   // 7-day trend
   const trendData = generateMockTrend(stats)
+
+  // Per-module stats
+  const moduleStats = modules.map((mod) => {
+    const modTasks = (tasks as Task[] ?? []).filter(t => t.module_id === mod.id)
+    const modTotal = modTasks.length
+    const modDone = modTasks.filter(t => t.status === 'done').length
+    const modBlocked = modTasks.filter(t => t.status === 'blocked').length
+    const modInProgress = modTasks.filter(t => t.status === 'in_progress').length
+    const modTodo = modTasks.filter(t => t.status === 'todo').length
+    const modCompletion = modTotal > 0 ? Math.round((modDone / modTotal) * 100) : 0
+    const modAvgProgress = modTotal > 0
+      ? Math.round(modTasks.reduce((sum, t) => sum + t.progress, 0) / modTotal)
+      : 0
+    return { mod, modTotal, modDone, modBlocked, modInProgress, modTodo, modCompletion, modAvgProgress }
+  })
 
   return (
     <div className="min-h-screen bg-[#fafafa]">
@@ -305,6 +326,77 @@ export function StatsPage() {
             </ResponsiveContainer>
           </div>
         </div>
+
+        {/* Module breakdown */}
+        {modules.length > 0 && (
+          <div>
+            <p className="text-sm font-semibold text-[#191919] mb-3">模块统计</p>
+            <div className="grid grid-cols-1 gap-3">
+              {moduleStats.map(({ mod, modTotal, modDone, modBlocked, modInProgress, modTodo, modCompletion, modAvgProgress }) => (
+                <div key={mod.id} className="bg-white rounded-lg border border-[#e8e8e6] p-4 shadow-sm">
+                  {/* Module header */}
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="font-semibold text-sm text-[#191919] truncate">{mod.name}</span>
+                      {mod.owner && (
+                        <span className="text-xs text-[#8c8c8c] flex-shrink-0">负责人：{mod.owner.name}</span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-4 flex-shrink-0 text-xs text-[#8c8c8c]">
+                      <span>共 <strong className="text-[#191919]">{modTotal}</strong> 个任务</span>
+                      <span>平均进度 <strong className="text-[#191919]">{modAvgProgress}%</strong></span>
+                    </div>
+                  </div>
+
+                  {modTotal === 0 ? (
+                    <p className="text-xs text-[#8c8c8c]">暂无任务</p>
+                  ) : (
+                    <>
+                      {/* Stacked progress bar */}
+                      <div className="flex h-2 rounded-full overflow-hidden gap-px mb-3">
+                        {modDone > 0 && (
+                          <div style={{ width: `${(modDone / modTotal) * 100}%`, backgroundColor: STATUS_COLORS.done }} />
+                        )}
+                        {modInProgress > 0 && (
+                          <div style={{ width: `${(modInProgress / modTotal) * 100}%`, backgroundColor: STATUS_COLORS.in_progress }} />
+                        )}
+                        {modBlocked > 0 && (
+                          <div style={{ width: `${(modBlocked / modTotal) * 100}%`, backgroundColor: STATUS_COLORS.blocked }} />
+                        )}
+                        {modTodo > 0 && (
+                          <div style={{ width: `${(modTodo / modTotal) * 100}%`, backgroundColor: '#e8e8e6' }} />
+                        )}
+                      </div>
+
+                      {/* Status counts + completion rate */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex flex-wrap gap-3">
+                          {[
+                            { label: '待办', value: modTodo, color: STATUS_COLORS.todo },
+                            { label: '进行中', value: modInProgress, color: STATUS_COLORS.in_progress },
+                            { label: '阻塞', value: modBlocked, color: STATUS_COLORS.blocked },
+                            { label: '已完成', value: modDone, color: STATUS_COLORS.done },
+                          ].filter(s => s.value > 0).map(s => (
+                            <div key={s.label} className="flex items-center gap-1">
+                              <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: s.color }} />
+                              <span className="text-xs text-[#555]">{s.label} <strong className="text-[#191919]">{s.value}</strong></span>
+                            </div>
+                          ))}
+                        </div>
+                        <span className={cn(
+                          'text-sm font-extrabold flex-shrink-0',
+                          modCompletion === 100 ? 'text-[#16a34a]' : modBlocked > 0 ? 'text-[#dc2626]' : 'text-[#191919]'
+                        )}>
+                          {modCompletion}%
+                        </span>
+                      </div>
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Chart row 2 */}
         <div className="grid grid-cols-2 gap-4">
