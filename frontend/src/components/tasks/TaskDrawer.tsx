@@ -169,7 +169,6 @@ export function TaskDrawer({ taskId, projectId, tasks }: TaskDrawerProps) {
                   }}
                   className="text-xs border border-[#e8e8e6] rounded-md px-2 py-1 bg-white text-[#191919] outline-none focus:ring-1 focus:ring-blue-400"
                 >
-                  <option value="">未分配</option>
                   {modules.map((m) => (
                     <option key={m.id} value={m.id}>{m.name}</option>
                   ))}
