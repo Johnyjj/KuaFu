@@ -145,7 +145,7 @@ export function ModuleSection({
   })
 
   function handleDelete() {
-    if (!window.confirm(`确定删除模块「${module.name}」？该模块下的任务将变为未分配。`)) return
+    if (!window.confirm(`确定删除模块「${module.name}」？该模块下的所有任务将同步删除，此操作不可恢复。`)) return
     deleteMutation.mutate()
   }
 
