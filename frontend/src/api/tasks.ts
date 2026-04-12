@@ -8,6 +8,7 @@ export const tasksApi = {
     client.post<Task>(`/projects/${projectId}/tasks`, data),
   update: (id: string, data: Partial<Task>) =>
     client.patch<Task>(`/tasks/${id}`, data),
+  delete: (id: string) => client.delete(`/tasks/${id}`),
   getLogs: (id: string) => client.get<TaskLog[]>(`/tasks/${id}/logs`),
   addLog: (id: string, data: { content: string; progress: number; status: string }) =>
     client.post<TaskLog>(`/tasks/${id}/logs`, data),

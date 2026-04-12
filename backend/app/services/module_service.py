@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from uuid import UUID
 from app.models.module import Module
-from app.models.task import Task
+from app.models.task import Task, TaskLog
 from app.models.user import User, UserRole
 from app.schemas.module import ModuleCreate, ModuleUpdate
 
@@ -31,9 +31,7 @@ def create_module(db: Session, project_id: UUID, data: ModuleCreate) -> Module:
     return module
 
 
-def update_module(db: Session, module: Module, data: ModuleUpdate, user: User) -> Module:
-    if user.role != UserRole.admin and (module.owner_id is None or module.owner_id != user.id):
-        raise HTTPException(status_code=403, detail="Not authorized to edit this module")
+def update_module(db: Session, module: Module, data: ModuleUpdate) -> Module:
     for k, v in data.model_dump(exclude_none=True).items():
         setattr(module, k, v)
     db.commit()
@@ -42,6 +40,10 @@ def update_module(db: Session, module: Module, data: ModuleUpdate, user: User) -
 
 
 def delete_module(db: Session, module: Module) -> None:
-    db.query(Task).filter(Task.module_id == module.id).update({"module_id": None})
+    # Cascade: delete all task logs then tasks belonging to this module
+    task_ids = [t.id for t in db.query(Task.id).filter(Task.module_id == module.id).all()]
+    if task_ids:
+        db.query(TaskLog).filter(TaskLog.task_id.in_(task_ids)).delete(synchronize_session=False)
+        db.query(Task).filter(Task.module_id == module.id).delete(synchronize_session=False)
     db.delete(module)
     db.commit()

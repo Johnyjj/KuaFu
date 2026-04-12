@@ -6,7 +6,7 @@ from app.dependencies import get_current_user, require_admin
 from app.models.user import User
 from app.schemas.task import TaskCreate, TaskUpdate, TaskOut, TaskLogCreate, TaskLogOut
 from app.services.task_service import (
-    get_task_or_403, list_tasks, create_task, update_task, create_log, list_logs
+    get_task_or_403, list_tasks, create_task, update_task, delete_task, create_log, list_logs
 )
 from app.services.project_service import get_project_or_403
 
@@ -20,9 +20,15 @@ def get_tasks(project_id: UUID, db: Session = Depends(get_db), user: User = Depe
 
 
 @router.post("/projects/{project_id}/tasks", response_model=TaskOut, status_code=201)
-def create(project_id: UUID, body: TaskCreate, db: Session = Depends(get_db), user: User = Depends(require_admin)):
+def create(project_id: UUID, body: TaskCreate, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     get_project_or_403(db, project_id, user)
-    return create_task(db, project_id, body)
+    return create_task(db, project_id, body, user)
+
+
+@router.delete("/tasks/{task_id}", status_code=204)
+def delete(task_id: UUID, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    task = get_task_or_403(db, task_id, user)
+    delete_task(db, task, user)
 
 
 @router.patch("/tasks/{task_id}", response_model=TaskOut)

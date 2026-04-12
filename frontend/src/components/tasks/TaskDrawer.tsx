@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { PriorityBadge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useUIStore } from '@/store/uiStore'
+import { useAuth } from '@/hooks/useAuth'
 import { formatDate, formatDateTime } from '@/lib/utils'
 import type { Task, TaskStatus } from '@/api/types'
 
@@ -27,6 +28,7 @@ const STATUS_OPTIONS: { value: TaskStatus; label: string }[] = [
 export function TaskDrawer({ taskId, projectId, tasks }: TaskDrawerProps) {
   const closeDrawer = useUIStore((s) => s.closeDrawer)
   const queryClient = useQueryClient()
+  const { user, isAdmin } = useAuth()
 
   const task = tasks.find((t) => t.id === taskId)
 
@@ -49,6 +51,9 @@ export function TaskDrawer({ taskId, projectId, tasks }: TaskDrawerProps) {
     enabled: !!projectId,
   })
 
+  const taskModule = modules.find((m) => m.id === task?.module_id)
+  const canManage = isAdmin || taskModule?.owner?.id === user?.id
+
   const updateModuleMutation = useMutation({
     mutationFn: (newModuleId: string) =>
       tasksApi.update(taskId, { module_id: newModuleId || null } as Partial<Task>),
@@ -57,6 +62,16 @@ export function TaskDrawer({ taskId, projectId, tasks }: TaskDrawerProps) {
       queryClient.invalidateQueries({ queryKey: ['tasks', projectId] })
     },
     onError: () => toast.error('更新失败'),
+  })
+
+  const deleteTaskMutation = useMutation({
+    mutationFn: () => tasksApi.delete(taskId),
+    onSuccess: () => {
+      toast.success('任务已删除')
+      queryClient.invalidateQueries({ queryKey: ['tasks', projectId] })
+      closeDrawer()
+    },
+    onError: () => toast.error('删除失败'),
   })
 
   // 状态切换为「已完成」时，进度自动设为 100%
@@ -113,12 +128,27 @@ export function TaskDrawer({ taskId, projectId, tasks }: TaskDrawerProps) {
           <h2 className="text-base font-semibold text-[#191919] leading-snug flex-1">
             {task.title}
           </h2>
-          <button
-            onClick={closeDrawer}
-            className="flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-md hover:bg-[#f0f0ee] text-[#555] transition-colors"
-          >
-            <X size={16} />
-          </button>
+          <div className="flex items-center gap-1 flex-shrink-0">
+            {canManage && (
+              <button
+                onClick={() => {
+                  if (window.confirm('确定删除该任务？此操作不可恢复。')) {
+                    deleteTaskMutation.mutate()
+                  }
+                }}
+                disabled={deleteTaskMutation.isPending}
+                className="text-xs text-[#dc2626] hover:text-[#b91c1c] px-2 py-1 rounded hover:bg-red-50 transition-colors disabled:opacity-50"
+              >
+                删除
+              </button>
+            )}
+            <button
+              onClick={closeDrawer}
+              className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-[#f0f0ee] text-[#555] transition-colors"
+            >
+              <X size={16} />
+            </button>
+          </div>
         </div>
 
         {/* Scrollable content */}

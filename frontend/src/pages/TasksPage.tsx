@@ -8,8 +8,6 @@ import { projectsApi } from '@/api/projects'
 import { modulesApi } from '@/api/modules'
 import type { ModuleCreate } from '@/api/modules'
 import { ModuleSection } from '@/components/tasks/ModuleSection'
-import { KanbanBoard } from '@/components/tasks/KanbanBoard'
-import { TaskTable } from '@/components/tasks/TaskTable'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -114,18 +112,22 @@ function CreateModuleDialog({ projectId, members }: { projectId: string; members
 }
 
 // ── 新建任务弹窗 ─────────────────────────────────────────────
-function CreateTaskDialog({ projectId, modules, members }: {
+function CreateTaskDialog({ projectId, modules, members, userId, isAdmin }: {
   projectId: string
   modules: Module[]
   members: { id: string; name: string }[]
+  userId: string
+  isAdmin: boolean
 }) {
+  // 只显示用户有权创建任务的模块（admin 全部；普通用户只显示自己负责的）
+  const allowedModules = isAdmin ? modules : modules.filter((m) => m.owner?.id === userId)
   const [open, setOpen] = useState(false)
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [priority, setPriority] = useState<TaskPriority>('medium')
   const [dueDate, setDueDate] = useState('')
   const [assigneeId, setAssigneeId] = useState('')
-  const [moduleId, setModuleId] = useState(modules[0]?.id ?? '')
+  const [moduleId, setModuleId] = useState(allowedModules[0]?.id ?? '')
   const queryClient = useQueryClient()
 
   const mutation = useMutation({
@@ -174,7 +176,7 @@ function CreateTaskDialog({ projectId, modules, members }: {
               className="w-full rounded-md border border-[#e8e8e6] bg-white px-3 py-2 text-sm text-[#191919] focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
             >
               <option value="">请选择模块</option>
-              {modules.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
+              {allowedModules.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
             </select>
           </div>
           <div className="space-y-1.5">
@@ -274,13 +276,10 @@ export default function TasksPage() {
 
   // 按 module_id 分组
   const tasksByModule: Record<string, typeof tasks> = {}
-  const unassignedTasks: typeof tasks = []
   for (const task of tasks) {
     if (task.module_id) {
       if (!tasksByModule[task.module_id]) tasksByModule[task.module_id] = []
       tasksByModule[task.module_id].push(task)
-    } else {
-      unassignedTasks.push(task)
     }
   }
 
@@ -323,8 +322,8 @@ export default function TasksPage() {
 
           <div className="flex items-center gap-2">
             {isAdmin && <CreateModuleDialog projectId={projectId} members={members} />}
-            {isAdmin && modules.length > 0 && (
-              <CreateTaskDialog projectId={projectId} modules={modules} members={members} />
+            {(isAdmin || modules.some((m) => m.owner?.id === user?.id)) && modules.length > 0 && (
+              <CreateTaskDialog projectId={projectId} modules={modules} members={members} userId={user?.id ?? ''} isAdmin={isAdmin} />
             )}
             {isAdmin && (
               <>
@@ -394,28 +393,12 @@ export default function TasksPage() {
                 tasks={tasksByModule[mod.id] ?? []}
                 projectId={projectId}
                 viewMode={activeTab}
-                canEdit={isAdmin || mod.owner?.id === user?.id}
+                canEdit={isAdmin}
                 canDelete={isAdmin}
                 members={members}
               />
             ))}
 
-            {/* 未分配任务（历史数据） */}
-            {unassignedTasks.length > 0 && (
-              <div className="mb-6">
-                <div className="flex items-center gap-2 mb-3 py-2 border-b border-[#e8e8e6]">
-                  <span className="text-sm font-semibold text-[#8c8c8c]">未分配</span>
-                  <span className="ml-auto text-[11px] font-semibold bg-[#e8e8e6] text-[#555] rounded-full px-2 py-0.5">
-                    {unassignedTasks.length}
-                  </span>
-                </div>
-                {activeTab === 'board' ? (
-                  <KanbanBoard tasks={unassignedTasks} projectId={projectId} />
-                ) : (
-                  <TaskTable tasks={unassignedTasks} />
-                )}
-              </div>
-            )}
           </div>
         )}
       </div>

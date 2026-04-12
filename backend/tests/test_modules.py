@@ -79,16 +79,17 @@ def test_admin_can_delete_module(client, admin_token, module_obj):
     assert res.status_code == 204
 
 
-def test_delete_module_nullifies_task_module_id(client, admin_token, project, module_obj, db):
+def test_delete_module_cascades_tasks(client, admin_token, project, module_obj, db):
     from app.models.task import Task
     task = Task(project_id=project.id, title="T", module_id=module_obj.id)
     db.add(task)
     db.commit()
+    task_id = task.id
 
     client.delete(
         f"/api/v1/modules/{module_obj.id}",
         headers={"Authorization": f"Bearer {admin_token}"},
     )
     db.expire_all()
-    task_after = db.query(Task).filter(Task.id == task.id).first()
-    assert task_after.module_id is None
+    task_after = db.query(Task).filter(Task.id == task_id).first()
+    assert task_after is None
