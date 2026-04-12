@@ -4,6 +4,7 @@ from openpyxl.styles import Font, PatternFill, Alignment, Border, Side, PatternF
 from openpyxl.utils import get_column_letter
 from sqlalchemy.orm import Session
 from app.models.project import Project
+from app.models.module import Module
 from app.models.task import Task, TaskLog
 
 STATUS_LABELS = {
@@ -56,6 +57,9 @@ def _set_col_widths(ws, widths: list[int]):
 def generate_excel(db: Session, project: Project) -> bytes:
     wb = Workbook()
 
+    modules = db.query(Module).filter(Module.project_id == project.id).order_by(Module.order).all()
+    module_name_map = {str(m.id): m.name for m in modules}
+
     tasks = db.query(Task).filter(Task.project_id == project.id).all()
     total = len(tasks)
     done = sum(1 for t in tasks if t.status.value == "done")
@@ -85,17 +89,27 @@ def generate_excel(db: Session, project: Project) -> bytes:
     for i, row in enumerate(overview_rows, 2):
         ws1.append(list(row))
         _style_data_row(ws1, i, 2, alt=(i % 2 == 0))
+
+    next_row = len(overview_rows) + 2
+    for m in modules:
+        m_count = sum(1 for t in tasks if t.module_id is not None and str(t.module_id) == str(m.id))
+        ws1.append([f"模块「{m.name}」任务数", m_count])
+        _style_data_row(ws1, next_row, 2, alt=(next_row % 2 == 0))
+        next_row += 1
+
     _set_col_widths(ws1, [18, 30])
 
     # ── Sheet 2: 任务明细 ──────────────────────────────────
     ws2 = wb.create_sheet("任务明细")
     ws2.row_dimensions[1].height = 22
-    headers2 = ["任务标题", "描述", "负责人", "状态", "优先级", "进度(%)", "截止日期", "创建时间", "最后更新"]
+    headers2 = ["模块", "任务标题", "描述", "负责人", "状态", "优先级", "进度(%)", "截止日期", "创建时间", "最后更新"]
     ws2.append(headers2)
     _style_header_row(ws2, 1, len(headers2))
 
     for i, t in enumerate(tasks, 2):
+        module_name = module_name_map.get(str(t.module_id), "未分配") if t.module_id is not None else "未分配"
         ws2.append([
+            module_name,
             t.title,
             t.description or "",
             t.assignee.name if t.assignee else "未指派",
@@ -107,7 +121,7 @@ def generate_excel(db: Session, project: Project) -> bytes:
             str(t.updated_at)[:16],
         ])
         _style_data_row(ws2, i, len(headers2), alt=(i % 2 == 0))
-    _set_col_widths(ws2, [28, 36, 12, 10, 8, 8, 12, 16, 16])
+    _set_col_widths(ws2, [16, 28, 36, 12, 10, 8, 8, 12, 16, 16])
 
     # ── Sheet 3: 进展日志 ──────────────────────────────────
     ws3 = wb.create_sheet("进展日志")
