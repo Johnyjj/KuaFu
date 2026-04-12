@@ -32,6 +32,18 @@ export interface Task {
   created_at: string
   updated_at: string
   assignee: { id: string; name: string } | null
+  module_id: string | null
+  module: { id: string; name: string } | null
+}
+
+export interface Module {
+  id: string
+  project_id: string
+  name: string
+  description: string | null
+  owner: { id: string; name: string } | null
+  order: number
+  created_at: string
 }
 
 export interface TaskLog {
