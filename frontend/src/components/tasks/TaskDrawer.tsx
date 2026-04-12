@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { X } from 'lucide-react'
 import { toast } from 'sonner'
 import { tasksApi } from '@/api/tasks'
+import { modulesApi } from '@/api/modules'
 import { Button } from '@/components/ui/button'
 import { PriorityBadge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -32,13 +33,31 @@ export function TaskDrawer({ taskId, projectId, tasks }: TaskDrawerProps) {
   const [logContent, setLogContent] = React.useState('')
   const [progress, setProgress] = React.useState(task?.progress ?? 0)
   const [status, setStatus] = React.useState<TaskStatus>(task?.status ?? 'todo')
+  const [moduleId, setModuleId] = React.useState(task?.module_id ?? '')
 
   React.useEffect(() => {
     if (task) {
       setProgress(task.progress)
       setStatus(task.status)
+      setModuleId(task.module_id ?? '')
     }
   }, [task])
+
+  const { data: modules = [] } = useQuery({
+    queryKey: ['modules', projectId],
+    queryFn: () => modulesApi.list(projectId).then((r) => r.data),
+    enabled: !!projectId,
+  })
+
+  const updateModuleMutation = useMutation({
+    mutationFn: (newModuleId: string) =>
+      tasksApi.update(taskId, { module_id: newModuleId || null } as Partial<Task>),
+    onSuccess: () => {
+      toast.success('模块已更新')
+      queryClient.invalidateQueries({ queryKey: ['tasks', projectId] })
+    },
+    onError: () => toast.error('更新失败'),
+  })
 
   // 状态切换为「已完成」时，进度自动设为 100%
   React.useEffect(() => {
@@ -137,6 +156,24 @@ export function TaskDrawer({ taskId, projectId, tasks }: TaskDrawerProps) {
               <div className="flex items-center gap-1.5">
                 <span className="text-[#8c8c8c] text-xs">截止日</span>
                 <span className="text-xs text-[#191919]">{formatDate(task.due_date)}</span>
+              </div>
+            )}
+            {modules.length > 0 && (
+              <div className="flex items-center gap-1.5">
+                <span className="text-[#8c8c8c] text-xs">模块</span>
+                <select
+                  value={moduleId}
+                  onChange={(e) => {
+                    setModuleId(e.target.value)
+                    updateModuleMutation.mutate(e.target.value)
+                  }}
+                  className="text-xs border border-[#e8e8e6] rounded-md px-2 py-1 bg-white text-[#191919] outline-none focus:ring-1 focus:ring-blue-400"
+                >
+                  <option value="">未分配</option>
+                  {modules.map((m) => (
+                    <option key={m.id} value={m.id}>{m.name}</option>
+                  ))}
+                </select>
               </div>
             )}
           </div>
