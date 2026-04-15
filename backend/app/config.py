@@ -6,6 +6,6 @@ class Settings(BaseSettings):
     database_url: str
     secret_key: str
     access_token_expire_minutes: int = 480
-    cors_origins: list[str] = ["http://localhost:5173"]
+    cors_origins: list[str] = ["http://localhost:5173", "http://localhost:5174", "http://localhost:5175"]
 
 settings = Settings()
