@@ -8,6 +8,7 @@ export const projectsApi = {
     client.post<Project>('/projects', data),
   update: (id: string, data: Partial<Project>) =>
     client.patch<Project>(`/projects/${id}`, data),
+  delete: (id: string) => client.delete(`/projects/${id}`),
   getMembers: (id: string) => client.get<User[]>(`/projects/${id}/members`),
   addMember: (id: string, userId: string) =>
     client.post(`/projects/${id}/members`, { user_id: userId }),

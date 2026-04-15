@@ -11,7 +11,7 @@ from app.schemas.project import ProjectCreate, ProjectUpdate, ProjectOut, Member
 from app.schemas.user import UserOut
 from app.services.project_service import (
     get_accessible_projects, get_project_or_403,
-    create_project, update_project,
+    create_project, update_project, delete_project,
     add_member, remove_member, get_project_members,
     get_project_stats,
 )
@@ -33,6 +33,12 @@ def create(body: ProjectCreate, db: Session = Depends(get_db), user: User = Depe
 @router.get("/{project_id}", response_model=ProjectOut)
 def get(project_id: UUID, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     return get_project_or_403(db, project_id, user)
+
+
+@router.delete("/{project_id}", status_code=204)
+def delete(project_id: UUID, db: Session = Depends(get_db), user: User = Depends(require_admin)):
+    project = get_project_or_403(db, project_id, user)
+    delete_project(db, project)
 
 
 @router.patch("/{project_id}", response_model=ProjectOut)

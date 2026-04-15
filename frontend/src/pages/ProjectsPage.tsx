@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { FolderOpen, Plus, Loader2, Pencil } from 'lucide-react'
+import { FolderOpen, Plus, Loader2, Pencil, Trash2 } from 'lucide-react'
 import { projectsApi } from '@/api/projects'
 import type { Project, ProjectStatus } from '@/api/types'
 import { useAuth } from '@/hooks/useAuth'
@@ -132,8 +132,24 @@ function EditProjectDialog({ project }: { project: Project }) {
 
 function ProjectCard({ project, isAdmin }: { project: Project; isAdmin: boolean }) {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const color = getProjectColor(project.name)
   const statusCfg = STATUS_CONFIG[project.status]
+
+  const deleteMutation = useMutation({
+    mutationFn: () => projectsApi.delete(project.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects'] })
+      toast.success('项目已删除')
+    },
+    onError: () => toast.error('删除失败，请重试'),
+  })
+
+  function handleDelete(e: React.MouseEvent) {
+    e.stopPropagation()
+    if (!window.confirm(`确定删除项目「${project.name}」？项目下所有模块和任务将同步删除，此操作不可恢复。`)) return
+    deleteMutation.mutate()
+  }
 
   return (
     <div
@@ -146,7 +162,19 @@ function ProjectCard({ project, isAdmin }: { project: Project; isAdmin: boolean 
           style={{ backgroundColor: color }}
         />
         <h3 className="text-[#191919] font-bold text-sm truncate flex-1">{project.name}</h3>
-        {isAdmin && <EditProjectDialog project={project} />}
+        {isAdmin && (
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <EditProjectDialog project={project} />
+            <button
+              type="button"
+              onClick={handleDelete}
+              disabled={deleteMutation.isPending}
+              className="w-6 h-6 flex items-center justify-center rounded hover:bg-red-50 text-[#8c8c8c] hover:text-[#dc2626] transition-colors disabled:opacity-50"
+            >
+              <Trash2 size={13} />
+            </button>
+          </div>
+        )}
       </div>
 
       <p className="text-[#555555] text-sm line-clamp-2 mb-4 min-h-[2.5rem]">

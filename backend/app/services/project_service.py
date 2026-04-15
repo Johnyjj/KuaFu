@@ -40,6 +40,11 @@ def create_project(db: Session, data: ProjectCreate, owner: User) -> Project:
     return project
 
 
+def delete_project(db: Session, project: Project) -> None:
+    db.delete(project)
+    db.commit()
+
+
 def update_project(db: Session, project: Project, data: ProjectUpdate) -> Project:
     for k, v in data.model_dump(exclude_none=True).items():
         setattr(project, k, v)
